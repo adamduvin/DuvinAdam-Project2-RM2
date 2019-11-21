@@ -17,24 +17,19 @@ const login = (request, response) => {
 
   const username = `${req.body.username}`;
   const password = `${req.body.pass}`;
-  const accountType = `${req.body.accountType}`;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'RAWR! All fields are required' });
   }
 
-  return Account.AccountModel.authenticate(username, password, accountType, (err, account) => {
+  return Account.AccountModel.authenticate(username, password, (err, account) => {
     if (err || !account) {
       return res.status(401).json({ error: 'Wrong username or password' });
     }
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    if(req.session.account.accountType == 'player'){
-      return res.json({ redirect: '/player' });
-    }
-
-    return res.json({ redirect: '/gm' });
+    return res.json({ redirect: '/maker' });
   });
 };
 
@@ -45,7 +40,6 @@ const signup = (request, response) => {
   req.body.username = `${req.body.username}`;
   req.body.pass = `${req.body.pass}`;
   req.body.pass2 = `${req.body.pass2}`;
-  req.body.accountType = `${req.body.accountType}`;
 
   if (!req.body.username || !req.body.pass || !req.body.pass2) {
     return res.status(400).json({ error: 'RAWR! All fields are required' });
@@ -59,7 +53,6 @@ const signup = (request, response) => {
     const accountData = {
       username: req.body.username,
       salt,
-      accountType: req.body.accountType,
       password: hash,
     };
 
@@ -69,7 +62,7 @@ const signup = (request, response) => {
 
     savePromise.then(() => {
       req.session.account = Account.AccountModel.toAPI(newAccount);
-      return res.json({ redirect: accountData.accountType });
+      return res.json({ redirect: '/maker' });
     });
 
     savePromise.catch((err) => {

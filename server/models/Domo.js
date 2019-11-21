@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
 
-let DomoModel = {};
+let CharacterModel = {};
 
 const convertId = mongoose.Types.ObjectId;
 const setName = (name) => _.escape(name).trim();
 
-const DomoSchema = new mongoose.Schema({
+const CharacterSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -15,15 +15,15 @@ const DomoSchema = new mongoose.Schema({
     set: setName,
   },
 
-  age: {
-    type: Number,
-    min: 0,
+  class: {
+    type: String,
     required: true,
+    trim: true,
   },
 
-  height: {
+  maxHealth: {
     type: Number,
-    min: 0,
+    min: 1,
     required: true,
   },
 
@@ -39,21 +39,21 @@ const DomoSchema = new mongoose.Schema({
   },
 });
 
-DomoSchema.statics.toAPI = (doc) => ({
+CharacterSchema.statics.toAPI = (doc) => ({
   name: doc.name,
-  age: doc.age,
-  height: doc.height,
+  class: doc.class,
+  maxHealth: doc.maxHealth,
 });
 
-DomoSchema.statics.findByOwner = (ownerId, callback) => {
+CharacterSchema.statics.findByOwner = (ownerId, callback) => {
   const search = {
     owner: convertId(ownerId),
   };
 
-  return DomoModel.find(search).select('name age height').exec(callback);
+  return CharacterModel.find(search).select('name class maxHealth').exec(callback);
 };
 
-DomoModel = mongoose.model('Domo', DomoSchema);
+CharacterModel = mongoose.model('Character', CharacterSchema);
 
-module.exports.DomoModel = DomoModel;
-module.exports.DomoSchema = DomoSchema;
+module.exports.CharacterModel = CharacterModel;
+module.exports.CharacterSchema = CharacterSchema;

@@ -37,7 +37,6 @@ const AccountSchema = new mongoose.Schema({
 AccountSchema.statics.toAPI = doc => ({
   // _id is built into your mongo document and is guaranteed to be unique
   username: doc.username,
-  accountType: doc.accountType,
   _id: doc._id,
 });
 
@@ -52,10 +51,9 @@ const validatePassword = (doc, password, callback) => {
   });
 };
 
-AccountSchema.statics.findByUsername = (name, type, callback) => {
+AccountSchema.statics.findByUsername = (name, callback) => {
   const search = {
     username: name,
-    accountType: type,
   };
 
   return AccountModel.findOne(search, callback);
@@ -69,8 +67,8 @@ AccountSchema.statics.generateHash = (password, callback) => {
   );
 };
 
-AccountSchema.statics.authenticate = (username, password, accountType, callback) =>
-AccountModel.findByUsername(username, accountType, (err, doc) => {
+AccountSchema.statics.authenticate = (username, password, callback) =>
+AccountModel.findByUsername(username, (err, doc) => {
   if (err) {
     return callback(err);
   }
